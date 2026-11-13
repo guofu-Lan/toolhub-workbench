@@ -1,0 +1,10 @@
+bin/
+obj/
+*.exe
+*.pdb
+*.zip
+*.7z
+config/license.json
+orders/
+assets/pay/
+*.cer
