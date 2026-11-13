@@ -71,7 +71,7 @@ ToolHub.exe -Port 18800 -Token t  固定端口与令牌
 
 ```
 set CSC=C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe
-%csc% /target:exe /resource:ui\demo.html,ui.html /out:Demo.exe src\Workbench.cs
+%CSC% /target:exe /resource:ui\demo.html,ui.html /out:Demo.exe src\Workbench.cs
 ```
 
 注意：`csc` 的资源参数**不要加引号**，否则报 CS1566。
@@ -81,7 +81,7 @@ set CSC=C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe
 ```
 src/Workbench.cs      服务骨架 + 工具表 + 路径解析（脱敏示例）
 ui/demo.html          示例页面：四页
- docs/ARCHITECTURE.md 设计说明与接口契约
+docs/ARCHITECTURE.md  设计说明与接口契约
 CHANGELOG.md          更新记录
 ```
 
