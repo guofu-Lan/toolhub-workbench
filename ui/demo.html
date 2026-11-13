@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToolHub Workbench 示例页</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E1012'/%3E%3Cpath d='M8 22h16M12 22V10h8v12' stroke='%23C8A356' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<style>
+  :root{--bg:#0E1012;--panel:#16191C;--panel2:#1B1F23;--line:#2A2F34;
+        --text:#E7E4DD;--muted:#8C9196;--brass:#C8A356;--ok:#7FA86B;--warn:#C4763F}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+       font-size:15px;line-height:1.65;padding:14px 12px 36px;
+       background-image:radial-gradient(circle at 12% -8%,#1b1f22 0%,transparent 52%)}
+  .wrap{max-width:940px;margin:0 auto}
+  header{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;
+         border-bottom:1px solid var(--line);padding-bottom:12px}
+  .brand{display:flex;gap:10px;align-items:center}
+  .mark{width:30px;height:30px;border:1px solid var(--brass);border-radius:2px;display:grid;
+        place-items:center;color:var(--brass);font-size:13px;font-weight:700}
+  h1{font-size:20px;font-weight:600}
+  .brand p{color:var(--muted);font-size:12px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{border:1px solid var(--line);border-radius:2px;padding:5px 9px;font-size:12px;background:var(--panel)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
+  .dot.off{background:var(--warn)}
+  nav{display:flex;gap:4px;overflow-x:auto;padding-top:12px}
+  nav button{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);
+             padding:9px 13px;font-size:14px;cursor:pointer;white-space:nowrap;min-height:44px;font-family:inherit}
+  nav button.active{color:var(--brass);border-bottom-color:var(--brass)}
+  .page{display:none;padding-top:16px}
+  .page.show{display:block}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:16px}
+  .lead{color:var(--muted);font-size:13px;margin-bottom:12px;max-width:62ch}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  input{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px 12px;
+        border-radius:2px;font-size:16px;flex:1;min-width:0}
+  .btn{background:var(--brass);border:1px solid var(--brass);color:#15130E;padding:10px 16px;border-radius:2px;
+       font-size:14px;font-weight:600;cursor:pointer;min-height:44px;font-family:inherit}
+  .btn.ghost{background:transparent;color:var(--brass)}
+  .btn:disabled{background:transparent;border-color:var(--line);color:#555;cursor:not-allowed}
+  .meta{color:var(--muted);font-size:12px;margin-top:10px;word-break:break-all}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+  .kv dt{color:var(--muted)}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,18px);background:#1F2428;
+         border:1px solid var(--brass);padding:10px 16px;border-radius:2px;font-size:14px;opacity:0;
+         transition:.18s;pointer-events:none}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @media (max-width:640px){.row{flex-direction:column}.btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark">TH</div>
+      <div>
+        <h1>ToolHub Workbench</h1>
+        <p>示例页面 / demo ui</p>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip"><span class="dot" id="dot"></span><span id="status">连接中</span></span>
+    </div>
+  </header>
+
+  <nav id="tabs">
+    <button data-page="files">文件搜索</button>
+    <button data-page="download">下载</button>
+    <button data-page="machine">本机</button>
+    <button data-page="guide">须知</button>
+  </nav>
+
+  <section class="page show" id="page-files">
+    <div class="card">
+      <p class="lead">唤起身本机的文件检索工具。服务端只负责启动进程，关键词在该程序内输入。</p>
+      <div class="row">
+        <input id="q" placeholder="文件名或关键词">
+        <button class="btn ghost" id="btn-search">打开检索工具</button>
+      </div>
+      <p class="meta" id="files-meta">工具状态读取中</p>
+    </div>
+  </section>
+
+  <section class="page" id="page-download">
+    <div class="card">
+      <p class="lead">把链接交给下载器。服务端只传参，不做下载，也不保存你的账号。</p>
+      <div class="row">
+        <input id="url" placeholder="http(s):// 或 magnet:?xt=…">
+        <button class="btn ghost" id="btn-dl">交给下载器</button>
+      </div>
+      <p class="meta" id="dl-meta">工具状态读取中</p>
+    </div>
+  </section>
+
+  <section class="page" id="page-machine">
+    <div class="card">
+      <dl class="kv" id="kv"><dt>主机名</dt><dd>—</dd></dl>
+    </div>
+  </section>
+
+  <section class="page" id="page-guide">
+    <div class="card">
+      <p class="lead">示例页说明：本仓库只放骨架，正式版的授权、支付与更多分页不在开源范围内。</p>
+      <dl class="kv">
+        <dt>启动</dt><dd>exe 起服务，浏览器打开 127.0.0.1，地址带一次性令牌</dt>
+        <dt>令牌</dt><dd>放在请求头 X-Token，缺失返回 403</dd>
+        <dt>工具</dt><dd>绿色副本优先，回退本机已装路径，都没有则标缺失</dt>
+        <dt>编码</dt><dd>子进程中文按 UTF-8 输出，读回严格解码，失败回退 GBK</dt>
+      </dl>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TOKEN = new URLSearchParams(location.search).get('t') || '';
+let STATE = null;
+
+async function api(path, body) {
+  const opt = { headers: { 'X-Token': TOKEN } };
+  if (body) {
+    opt.method = 'POST';
+    opt.headers['Content-Type'] = 'application/json';
+    opt.body = JSON.stringify(body);
+  }
+  try { return await (await fetch(path, opt)).json(); }
+  catch (e) { return { ok: false, msg: '服务未响应' }; }
+}
+
+const toastEl = document.getElementById('toast');
+let timer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(timer);
+  timer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('show');
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  history.replaceState(null, '', '#' + name);
+}
+document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => showPage(b.dataset.page)));
+
+function byKey(key) {
+  return STATE && STATE.tools ? STATE.tools.find(t => t.key === key) : null;
+}
+
+async function refresh() {
+  const s = await api('/api/state');
+  if (!s.ok) { document.getElementById('status').textContent = '未连接'; document.getElementById('dot').className = 'dot off'; return; }
+  STATE = s;
+  document.getElementById('status').textContent = '已连接 · ' + (s.host || '');
+  document.getElementById('dot').className = 'dot';
+  const meta = (id, key) => {
+    const t = byKey(key);
+    document.getElementById(id).textContent = t
+      ? (t.exists ? '就绪 · ' : '路径缺失 · ') + t.path
+      : '未登记';
+  };
+  meta('files-meta', 'everything');
+  meta('dl-meta', 'fluxdown');
+  const kv = document.getElementById('kv');
+  kv.innerHTML = '';
+  [['主机名', s.host], ['系统', s.os], ['端口', s.port]].forEach(p => {
+    const dt = document.createElement('dt'); dt.textContent = p[0];
+    const dd = document.createElement('dd'); dd.textContent = p[1] || '—';
+    kv.appendChild(dt); kv.appendChild(dd);
+  });
+}
+
+document.getElementById('btn-search').addEventListener('click', async () => {
+  const r = await api('/api/launch', { tool: 'everything' });
+  toast(r.ok ? '已唤起检索工具' : '失败: ' + r.msg);
+  refresh();
+});
+
+document.getElementById('btn-dl').addEventListener('click', async () => {
+  const url = document.getElementById('url').value.trim();
+  if (url && !/^(https?:\/\/|magnet:)/i.test(url)) { toast('链接要以 http(s) 或 magnet 开头'); return; }
+  const r = await api('/api/launch', { tool: 'fluxdown', url });
+  toast(r.ok ? '已交给下载器' : '失败: ' + r.msg);
+  refresh();
+});
+
+showPage(location.hash.replace('#', '') || 'files');
+refresh();
+setInterval(refresh, 20000);
+</script>
+</body>
+</html>
